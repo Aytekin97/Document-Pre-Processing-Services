@@ -2,11 +2,20 @@ import requests
 from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
 from pdf_manager import PdfManager
+from openai_client import OpenAiClient
+from vector_manager import VectorManager
+from agents import tables_extraction_agent, text_extraction_agent
+from schemas import TablesSchema, ExtractedTextSchema
+from chunkify_data import chunkify
 
 app = FastAPI()
 
 @app.post("/api/preprocess")
 async def preprocess_file(file_url: str = Query(...)):
+
+    client = OpenAiClient()
+    pdf_manager = PdfManager()
+    vector_manager = VectorManager()
     try:
         # Send GET request to fetch the file
         response = requests.get(file_url, stream=True)
@@ -25,19 +34,21 @@ async def preprocess_file(file_url: str = Query(...)):
         file_type = mime_to_type.get(content_type)
         if not file_type:
             raise ValueError(f"Unsupported file type: {content_type}")
-
-        # Simulate preprocessing (replace this with your actual processing logic)
-        file_size = len(file_content)  # Example: Get file size in bytes
-
-        pdf_manager = PdfManager()
+     
         extracted_file = pdf_manager.pdf_reader(file_content, file_type)
+
+        # Extract tables and text
+        extracted_tables = pdf_manager.extract(client, extracted_file, TablesSchema, tables_extraction_agent)
+        extracted_text = pdf_manager.extract(client, extracted_file, ExtractedTextSchema, text_extraction_agent)
+
+        # Chunkify the text
+        chunkified_text = chunkify(extracted_text.text)
 
         # Return success response with preprocessing result
         return JSONResponse(
             status_code=200,
             content={
                 "message": "File processed successfully",
-                "file_size": file_size,
                 "file_url": file_url
             }
         )
