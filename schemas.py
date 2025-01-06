@@ -43,3 +43,7 @@ class ReportSection(BaseModel):
 
 class ReportResponse(BaseModel):
     report_body: List[ReportSection]
+
+class PreprocessRequest(BaseModel):
+    file_url: str
+    company_name: str

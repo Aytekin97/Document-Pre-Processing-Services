@@ -8,7 +8,7 @@ from pdf_manager import PdfManager
 from openai_client import OpenAiClient
 from vector_manager import VectorManager
 from agents import tables_extraction_agent, text_extraction_agent
-from schemas import TablesSchema, ExtractedTextSchema
+from schemas import TablesSchema, ExtractedTextSchema, PreprocessRequest
 from chunkify_data import chunkify
 from config import settings
 from loguru import logger
@@ -37,7 +37,9 @@ text_index = pc.Index("document-text-embeddings")
 table_index = pc.Index("table-embeddings")
 
 @app.post("/api/preprocess")
-async def preprocess_file(file_url: str = Query(...), company_name: str = Query(...)):
+async def preprocess_file(request: PreprocessRequest):
+    file_url = request.file_url
+    company_name = request.company_name
     client = OpenAiClient()
     pdf_manager = PdfManager()
     vector_manager = VectorManager()
