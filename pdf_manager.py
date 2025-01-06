@@ -22,11 +22,11 @@ class PdfManager:
             logger.error(f"An error occured while querying ChatGPT: {e}")
 
     # Format tables into 
-    def format_table_for_embedding(self, tables_schema: TablesSchema) -> List[str]:
+    def format_table_for_embedding(self, raw_tables: TablesSchema) -> List[str]:
         # Convert table schema to text
         formatted_tables = []
 
-        for table in tables_schema.tables:
+        for table in raw_tables.tables:
             formatted_table = f"Table: {table.table_name}\n"
 
             # Add column names

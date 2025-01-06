@@ -10,9 +10,13 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
+    pinecone_api_key: str
+    pinecone_environment: str
     openai_api_key: str
     openai_model: str
-
+    db_url: str
+    aws_access_key: str
+    aws_secret_key: str
 
     def __init__(self, **data):
         super().__init__(**data)
