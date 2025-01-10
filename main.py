@@ -1,7 +1,7 @@
 import boto3
 import json
 import os
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pdf_manager import PdfManager
@@ -13,7 +13,7 @@ from chunkify_data import chunkify
 from config import settings
 from loguru import logger
 from datetime import datetime
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone
 
 app = FastAPI()
 app.add_middleware(
@@ -45,14 +45,14 @@ async def preprocess_file(request: PreprocessRequest):
     vector_manager = VectorManager()
 
     try:
-        # Parse S3 URL to extract bucket name and key
-        if not file_url.startswith("s3://"):
-            raise ValueError("Invalid S3 URL. Must start with 's3://'.")
-
-        s3_parts = file_url[5:].split("/", 1)  # Remove 's3://' and split into bucket and key
-        if len(s3_parts) != 2:
-            raise ValueError("Invalid S3 URL format. Must include bucket and key.")
-
+        # Parse S3 or HTTPS URL to extract bucket name and key
+        if file_url.startswith("s3://"):
+            s3_parts = file_url[5:].split("/", 1)
+        elif file_url.startswith("https://"):
+            s3_parts = file_url.replace("https://", "").split("/", 1)
+        else:
+            raise ValueError("Invalid URL. Must start with 's3://' or 'https://'.")
+        
         bucket_name, object_key = s3_parts
 
         # Fetch the file content from S3
