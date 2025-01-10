@@ -51,7 +51,10 @@ async def preprocess_file(request: PreprocessRequest):
         if file_url.startswith("s3://"):
             s3_parts = file_url[5:].split("/", 1)
         elif file_url.startswith("https://"):
-            s3_parts = file_url.replace("https://", "").split("/", 1)
+            domain = "s3.amazonaws.com/"
+            if domain in file_url:
+                s3_parts = file_url.replace(f"https://", "").split("/", 1)
+                s3_parts[0] = s3_parts[0].split(".s3.amazonaws.com")[0]  # Extract bucket name
         else:
             raise ValueError("Invalid URL. Must start with 's3://' or 'https://'.")
         
