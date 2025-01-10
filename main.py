@@ -38,6 +38,7 @@ table_index = pc.Index("table-embeddings")
 
 @app.post("/api/preprocess")
 async def preprocess_file(request: PreprocessRequest):
+    logger.info(f"Request received: {request.file_url}, {request.company_name}")
     file_url = request.file_url
     company_name = request.company_name
     client = OpenAiClient()
