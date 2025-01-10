@@ -45,6 +45,7 @@ async def preprocess_file(request: PreprocessRequest):
     pdf_manager = PdfManager()
     vector_manager = VectorManager()
 
+    logger.info(f"Creating s3_parts")
     try:
         # Parse S3 or HTTPS URL to extract bucket name and key
         if file_url.startswith("s3://"):
@@ -54,11 +55,13 @@ async def preprocess_file(request: PreprocessRequest):
         else:
             raise ValueError("Invalid URL. Must start with 's3://' or 'https://'.")
         
+        logger.info(f"Creating bucket_name and object_key")
         bucket_name, object_key = s3_parts
-
+        logger.success(f"bucket_name: {bucket_name}, object_key: {object_key}")
         # Fetch the file content from S3
+        logger.info("Getting the object")
         response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
-
+        logger.success("Object received!")
         # Validate the content type
         content_type = response.get("ContentType", "")
         logger.info(f"Content Type: {content_type}")
