@@ -3,7 +3,7 @@ from loguru import logger
 
 
 # Chunkify the document
-def chunkify(text, max_tokens=8000, overlap=200):
+def chunkify(text, max_tokens=500, overlap=20):
     logger.info("Chunkifier called")
     """
     Splits a long text into chunks that fit within the token limit for OpenAI models.
